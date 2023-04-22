@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a5a48206-71d3-4e9c-93f8-39f6693088ab" name="Changes" comment="" />
+    <list default="true" id="a5a48206-71d3-4e9c-93f8-39f6693088ab" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SparkConsumers/batch_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/SparkConsumers/batch_processing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SparkConsumers/transformation_zone.py" beforeDir="false" afterPath="$PROJECT_DIR$/SparkConsumers/transformation_zone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/start.sh" beforeDir="false" afterPath="$PROJECT_DIR$/start.sh" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -97,6 +103,19 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration name="Spark.spark-master: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="spark-master" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="Spark/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
       <deployment type="docker-compose.yml">
         <settings />
@@ -109,6 +128,7 @@
         <item itemvalue="Docker.HDFS: Compose Deployment" />
         <item itemvalue="Docker.Spark: Compose Deployment" />
         <item itemvalue="Docker.Database: Compose Deployment" />
+        <item itemvalue="Docker.Spark.spark-master: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -126,6 +146,10 @@
       <workItem from="1682018951319" duration="9572000" />
       <workItem from="1682073211151" duration="665000" />
       <workItem from="1682082846984" duration="2497000" />
+      <workItem from="1682085490189" duration="316000" />
+      <workItem from="1682086818190" duration="10940000" />
+      <workItem from="1682105134441" duration="2990000" />
+      <workItem from="1682109886992" duration="31000" />
     </task>
     <servers />
   </component>
