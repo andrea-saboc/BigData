@@ -14,8 +14,8 @@ if __name__ == '__main__':
         .appName("HDFSData")\
         .getOrCreate()
 
-    #df = spark.read.csv("../home/batch_primeri/traffic_crashes.csv", header=True)
-    #df.write.csv(HDFS_NAMENODE + "/raw/traffic_crashes.csv", mode="overwrite", header=True)
+    df = spark.read.csv("../home/batch_primeri/traffic_crashes.csv", header=True)
+    df.write.csv(HDFS_NAMENODE + "/raw/traffic_crashes.csv", mode="overwrite", header=True)
 
     df_people = spark.read.csv("../home/batch_primeri/people.csv", header=True)
     df_people.write.csv(HDFS_NAMENODE + "/raw/people.csv", mode="overwrite", header=True)

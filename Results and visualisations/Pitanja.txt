@@ -2,3 +2,6 @@
  - vidimo da je tokom 2020. godine bilo nešto manje nezgoda, što može da bude rezultat usled zatvaranja zbog situacije sa Covid-19, nakon toga vidimo da je broj saobraćajnih  nezgoda u blagom padu
 
 2. Prošlogodišnji procenti uzroka nesreća po rasponu godina starosti.
+
+
+4. Napraviti tabelu gde su uključeni samo učesnici od 18-15 godina, sa vozilima i frekvencijama pojavljivanja marke tog vozila u saobraćajnim nezgodama do te saobracajne nezgode

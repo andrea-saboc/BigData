@@ -13,12 +13,15 @@ services:
     volumes:
       - zoo1:/data
       - zoo1log:/datalog
+    networks:
+      - asvsp_network
 
   kafka1:
     image: confluentinc/cp-kafka:5.5.12
     container_name: kafka1
     ports:
       - "9092:9092"
+    restart: always
     environment:
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
@@ -27,6 +30,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka1:/var/lib/kafka/data
     depends_on:
@@ -39,6 +43,7 @@ services:
     container_name: kafka2
     ports:
       - "9093:9093"
+    restart: always
     environment:
       KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
@@ -46,6 +51,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
       KAFKA_BROKER_ID: 2
       KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka2:/var/lib/kafka/data
     depends_on:
@@ -53,70 +59,47 @@ services:
     networks:
       - asvsp_network
 
-  kafka3:
-    image: confluentinc/cp-kafka:5.5.12
-    container_name: kafka3
-    ports:
-      - "9094:9094"
-    environment:
-      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19094,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9094
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
-      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
-      KAFKA_BROKER_ID: 3
-      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+  producer:
+    build: 
+      context: ../Producer/Real
+    container_name: kafka_producer_1
+    restart: unless-stopped
+    mem_limit: 200M
     volumes:
-      - kafka3:/var/lib/kafka/data
+      - ../Producer/Real:/app:ro
+    environment:
+      - KAFKA_BROKER=kafka1:19092
+      - KAFKA_TOPIC=chicago-traffic
+      - DATASET_API_LINK=https://data.cityofchicago.org/resource/n4j6-wkkf.json
     depends_on:
-      - zoo1
+      - kafka1
     networks:
       - asvsp_network
 
-  kafka-rest-proxy:
-    image: confluentinc/cp-kafka-rest:5.5.12
-    container_name: kafka-rest-proxy
-    ports:
-      - "8082:8082"
-    environment:
-      # KAFKA_REST_ZOOKEEPER_CONNECT: zoo1:2181
-      KAFKA_REST_LISTENERS: http://0.0.0.0:8082/
-      # KAFKA_REST_SCHEMA_REGISTRY_URL: http://kafka-schema-registry:8081/
-      KAFKA_REST_HOST_NAME: kafka-rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: PLAINTEXT://kafka1:19092
-    depends_on:
-      - zoo1
-      - kafka1
+  init-kafka:
+      image: confluentinc/cp-kafka:6.1.1
+      depends_on:
+        - kafka1
+        - kafka2
+      entrypoint: [ '/bin/sh', '-c' ]
+      command: |
+        "
+        # blocks until kafka is reachable
+        kafka-topics --bootstrap-server kafka1:19092 --list
 
-  kafka-topics-ui:
-    image: landoop/kafka-topics-ui
-    container_name: kafka-topics-ui
-    ports:
-      - "8000:8000"
-    environment:
-      KAFKA_REST_PROXY_URL: "http://kafka-rest-proxy:8082/"
-      PROXY: "true"
-    depends_on:
-      - zoo1
-      - kafka1
-      - kafka-rest-proxy
-
-  producer_and_consumers:
-    build: .
-    container_name: producer_and_consumers
-    environment:
-      KAFKA_BROKERS: "kafka1:19092,kafka2:19092,kafka3:19092"
-      TOPIC_NAME: "pek-sha"
-    depends_on:
-      - kafka1
-      - kafka2
-      - kafka3
+        echo -e 'Creating kafka topics'
+        kafka-topics --bootstrap-server kafka1:19092 --create --if-not-exists --topic chicago-traffic --replication-factor 1 --partitions 1
+        echo -e 'Successfully created the following topics:'
+        kafka-topics --bootstrap-server kafka2:19093 --list
+        "
+      networks:
+        - asvsp_network
 
 volumes:
   zoo1:
   zoo1log:
   kafka1:
   kafka2:
-  kafka3:
 
 networks:
   asvsp_network:
