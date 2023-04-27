@@ -23,6 +23,8 @@ if __name__ == '__main__':
     df_vehicles = spark.read.csv("../home/batch_primeri/vehicles.csv", header=True)
     df_vehicles.write.csv(HDFS_NAMENODE + "/raw/vehicles.csv", mode="overwrite", header=True)
 
+    df_regions = spark.read.csv("../home/batch_primeri/regions.csv", header=True)
+    df_regions.write.csv(HDFS_NAMENODE + "/raw/regions.csv", mode="overwrite", header=True)
 
 
 

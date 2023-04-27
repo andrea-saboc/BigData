@@ -1,0 +1,3 @@
+stop the port 5432:
+sudo netstat -lpn |grep :5432
+sudo kill -9 PID

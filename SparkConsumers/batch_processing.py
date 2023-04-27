@@ -190,6 +190,34 @@ def number_of_type_of_accidents(df):
 
     write_df(df_grouped, "types")
 
+# 8 number of accidents by people that had accidents by age
+
+def avg_num_of_accident_by_age(df, df_people):
+    df_people = df_people.select("CRASH_RECORD_ID", "AGE", "PERSON_TYPE", "PERSON_ID")
+    df_people = df_people.filter(col("AGE").isNotNull())
+    df_people = df_people.filter(col("AGE")>0)
+
+
+    joined_df = df_people.join(df.select("CRASH_RECORD_ID", "CRASH_HOUR"), how="inner", on="CRASH_RECORD_ID")
+    joined_df = joined_df.withColumn("AGE_RANGE", when(col("AGE").between(0,25), "<25")
+                                     .when(col("AGE").between(25,35), "25-35")
+                                    .when(col("AGE").between(36,60), "36-60")
+                                    .when(col("AGE").between(60,70), "60-70")
+                                    .otherwise("70+"))
+
+    age_range_window = Window.partitionBy("AGE_RANGE")
+
+    accidents_per_person = joined_df.groupBy("PERSON_ID", "AGE_RANGE").agg(count("*").alias("num_accidents"))
+
+    avg_num_accidents_with_his_age_range = accidents_per_person.withColumn("avg_num_accidents", avg("num_accidents").over(age_range_window))
+    avg_num_accidents_with_his_age_range = avg_num_accidents_with_his_age_range.filter(col("avg_num_accidents")>1)
+
+
+    avg_num_accidents_with_his_age_range.show()
+
+
+
+
 #how many of crashes involve injuries or fatslities
 
 def write_df(dataframe,tablename):
@@ -239,4 +267,5 @@ if __name__ == '__main__':
     #number_of_accidents_by_part_of_day_and_months(df)
     #number_of_accidents_by_part_of_day_and_day_of_the_week(df)
     #accidents_by_age_of_driver_and_period_of_day(df, df_people)
-    accidents_by_vehicle(df, df_vehicle, df_people)
+    #accidents_by_vehicle(df, df_vehicle, df_people)
+    avg_num_of_accident_by_age(df, df_people)

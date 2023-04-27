@@ -1,0 +1,5 @@
+numpy
+turfpy
+scipy
+geojson
+shapely
